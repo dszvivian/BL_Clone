@@ -5,4 +5,6 @@ sealed class Screen(val route :String){
     object DiscussionListScreen : Screen("dest_discussionListScreen")
     object DiscussionScreen : Screen("dest_discussionScreen")
     object AddPostScreen : Screen("dest_addPostScreen")
+    object LoginScreen : Screen("dest_loginScreen")
+    object RegisterScreen : Screen("dest_registerScreen")
 }

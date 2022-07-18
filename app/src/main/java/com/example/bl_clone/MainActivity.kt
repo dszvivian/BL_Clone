@@ -28,7 +28,17 @@ class MainActivity : ComponentActivity() {
 fun BlCloneApp() {
 
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
+    NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
+
+        composable(route = Screen.LoginScreen.route){
+            LoginScreen(navController)
+        }
+
+        composable(route = Screen.RegisterScreen.route){
+            RegisterScreen(navController)
+        }
+
+
         composable(route = Screen.MainScreen.route) {
             BlMainScreen(navController = navController)
         }

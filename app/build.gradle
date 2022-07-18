@@ -69,4 +69,7 @@ dependencies {
     //livedata
     implementation('androidx.compose.runtime:runtime-livedata:1.1.1')
 
+    //system bar color
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
+
 }

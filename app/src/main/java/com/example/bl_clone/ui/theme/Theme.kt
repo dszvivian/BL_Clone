@@ -1,10 +1,14 @@
 package com.example.bl_clone.ui.theme
 
+import android.graphics.Color.luminance
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -41,4 +45,21 @@ fun BL_cloneTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
         shapes = Shapes,
         content = content
     )
+
+    val systemUiController = rememberSystemUiController()
+    if(darkTheme){
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent ,
+            darkIcons = false
+        )
+    }else{
+        systemUiController.setSystemBarsColor(
+            color = Color.Black,
+            darkIcons = false
+        )
+    }
+
+
+
+
 }
