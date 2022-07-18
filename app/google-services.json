@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "103539700341",
+    "project_id": "bl-clone",
+    "storage_bucket": "bl-clone.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103539700341:android:ebe4d5dd1f6bb8156bbe3c",
+        "android_client_info": {
+          "package_name": "com.example.bl_clone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "103539700341-739phl4nrea71vsgguaeoqon5jrvfpcs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDooAldhuU-qbMNxI74O80t4uOaTpGBGdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "103539700341-739phl4nrea71vsgguaeoqon5jrvfpcs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
