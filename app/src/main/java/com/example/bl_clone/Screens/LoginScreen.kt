@@ -1,6 +1,7 @@
 package com.example.bl_clone.Screens
 
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,12 +11,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.bl_clone.Screen
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.*
+import java.lang.Exception
 
 
 @Composable
@@ -23,6 +28,15 @@ fun LoginScreen(navController: NavController) {
 
     var emailTextState by remember { mutableStateOf("") }
     var passwordTextState by remember { mutableStateOf("") }
+
+    var userLoggedState = remember { mutableStateOf("Not logged in ")}
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+
+    if(userLoggedState.value == "User Logged in"){
+        navController.navigate(Screen.MainScreen.route)
+    }
 
     Surface(
         modifier = Modifier
@@ -50,7 +64,7 @@ fun LoginScreen(navController: NavController) {
                     value = emailTextState,
                     onValueChange = { emailTextState = it },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
+                        keyboardType = KeyboardType.Email
                     ),
                     label = {Text(text = "Enter Email")} ,
                     leadingIcon = {  AsyncImage(model = "https://img.icons8.com/ios-glyphs/344/new-post.png",
@@ -107,7 +121,41 @@ fun LoginScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.padding(20.dp))
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+
+                        // region implements fireBase authentication
+
+                        var auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+                        if(emailTextState.isNotEmpty() && passwordTextState.isNotEmpty()){
+                            coroutineScope.launch {
+
+                                withContext(Dispatchers.IO){
+                                    try {
+                                        auth.signOut()
+                                        auth.signInWithEmailAndPassword(emailTextState , passwordTextState).addOnCompleteListener{task ->
+                                            if(task.isSuccessful){
+                                                userLoggedState.value = "User Logged in"
+                                                navController.navigate(Screen.MainScreen.route)
+                                            }
+                                            else{
+                                                userLoggedState.value = "User Not Logged in"
+                                                navController.navigate(Screen.MainScreen.route)
+                                            }
+                                        }
+                                    }
+                                    catch (e:Exception){
+                                        Toast.makeText(context , e.message ,Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                            }
+                        }
+
+                        // endregion implements fireBase authentication uusiohnif
+
+
+                              },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color.Black ,
@@ -116,6 +164,13 @@ fun LoginScreen(navController: NavController) {
                 ) {
                     Text(text = "Sign In")
                 }
+
+                Spacer(modifier = Modifier.padding(10.dp))
+
+                Text(
+                    text = userLoggedState.value,
+                    style = MaterialTheme.typography.subtitle2
+                )
 
 
             }
@@ -127,6 +182,10 @@ fun LoginScreen(navController: NavController) {
 
 
 
+
+
 }
+
+
 
 

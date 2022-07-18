@@ -1,5 +1,6 @@
 package com.example.bl_clone.Screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -8,17 +9,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.bl_clone.Screen
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 @Composable
 fun RegisterScreen(navController: NavHostController) {
 
     var emailTextState by remember { mutableStateOf("") }
     var passwordTextState by remember { mutableStateOf("") }
+    var usernameTextState by remember { mutableStateOf("") }
+    var confirmPasswordTextState by remember { mutableStateOf("") }
+
+
+    var userLoggedState = remember { mutableStateOf("Not logged in ")}
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+
+
 
     Surface(
         modifier = Modifier
@@ -44,12 +61,12 @@ fun RegisterScreen(navController: NavHostController) {
                 //username
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = emailTextState,
-                    onValueChange = { emailTextState = it },
+                    value = usernameTextState,
+                    onValueChange = { usernameTextState = it },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
-                    label = { Text(text = "Enter Email") },
+                    label = { Text(text = "Enter Username") },
                     leadingIcon = {
                         AsyncImage(model = "https://img.icons8.com/material-rounded/2x/user.png",
                             contentDescription = "",
@@ -66,7 +83,7 @@ fun RegisterScreen(navController: NavHostController) {
                     value = emailTextState,
                     onValueChange = { emailTextState = it },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
+                        keyboardType = KeyboardType.Email
                     ),
                     label = { Text(text = "Enter Email") },
                     leadingIcon = {
@@ -105,8 +122,8 @@ fun RegisterScreen(navController: NavHostController) {
                 //confirm password
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = passwordTextState,
-                    onValueChange = { passwordTextState = it },
+                    value = confirmPasswordTextState,
+                    onValueChange = { confirmPasswordTextState = it },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
@@ -130,7 +147,44 @@ fun RegisterScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         /*TODO register user in firebase*/
-                        navController.navigate(Screen.MainScreen.route)
+
+
+
+                        // region implements fireBase authentication
+
+                        val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+                        if(emailTextState.isNotEmpty() && passwordTextState.isNotEmpty()){
+                            coroutineScope.launch {
+
+                                withContext(Dispatchers.IO){
+                                    try {
+                                        auth.createUserWithEmailAndPassword(emailTextState , passwordTextState).addOnCompleteListener{task ->
+                                            if(task.isComplete){
+                                                userLoggedState.value = "User Logged in"
+                                                navController.navigate(Screen.MainScreen.route)
+                                            }
+                                            else{
+                                                userLoggedState.value = "User Not Logged in"
+                                                navController.navigate(Screen.MainScreen.route)
+                                            }
+                                        }
+                                    }
+                                    catch (e: Exception){
+                                        Toast.makeText(context , e.message , Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                            }
+                        }
+
+                        // endregion implements fireBase authentication
+
+
+
+
+
+
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -140,6 +194,11 @@ fun RegisterScreen(navController: NavHostController) {
                 ) {
                     Text(text = "Register")
                 }
+
+                Text(
+                    text = userLoggedState.value,
+                    style = MaterialTheme.typography.subtitle2
+                )
 
 
             }
