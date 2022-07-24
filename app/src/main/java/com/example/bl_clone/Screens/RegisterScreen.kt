@@ -14,25 +14,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.bl_clone.LoginViewModel
 import com.example.bl_clone.Screen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import kotlin.math.sign
 
 @Composable
-fun RegisterScreen(navController: NavHostController) {
-
-    var emailTextState by remember { mutableStateOf("") }
-    var passwordTextState by remember { mutableStateOf("") }
-    var usernameTextState by remember { mutableStateOf("") }
-    var confirmPasswordTextState by remember { mutableStateOf("") }
+fun RegisterScreen(
+    navController: NavHostController ,
+    signUpViewModel: LoginViewModel = LoginViewModel()) {
 
 
-    var userLoggedState = remember { mutableStateOf("Not logged in ")}
+    val signUpUiState = signUpViewModel.loginUiState
+
+    val isError = signUpUiState.signUpError != null
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+
 
 
 
@@ -58,11 +59,11 @@ fun RegisterScreen(navController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.padding(6.dp))
 
-                //username
-                TextField(
+                //todo username
+                /*TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = usernameTextState,
-                    onValueChange = { usernameTextState = it },
+                    value = signUpUiState.signUpUserName,
+                    onValueChange = { signUpViewModel.onSignUpUserNameChange(it) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
@@ -75,13 +76,13 @@ fun RegisterScreen(navController: NavHostController) {
                         )
                     }
 
-                )
+                )*/
 
-                //email
+                //email -- username for now
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = emailTextState,
-                    onValueChange = { emailTextState = it },
+                    value = signUpUiState.signUpUserName,
+                    onValueChange = { signUpViewModel.onSignUpUserNameChange(it) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
                     ),
@@ -99,8 +100,8 @@ fun RegisterScreen(navController: NavHostController) {
                 //password
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = passwordTextState,
-                    onValueChange = { passwordTextState = it },
+                    value = signUpUiState.signUpPassword,
+                    onValueChange = { signUpViewModel.onSignUpPasswordChange(it) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
@@ -122,8 +123,8 @@ fun RegisterScreen(navController: NavHostController) {
                 //confirm password
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = confirmPasswordTextState,
-                    onValueChange = { confirmPasswordTextState = it },
+                    value = signUpUiState.confirmPassword,
+                    onValueChange = { signUpViewModel.onSignUpConfirmPasswordChange(it) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
@@ -146,43 +147,8 @@ fun RegisterScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.padding(20.dp))
                 Button(
                     onClick = {
-                        /*TODO register user in firebase*/
 
-
-
-                        // region implements fireBase authentication
-
-                        val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-                        if(emailTextState.isNotEmpty() && passwordTextState.isNotEmpty()){
-                            coroutineScope.launch {
-
-                                withContext(Dispatchers.IO){
-                                    try {
-                                        auth.createUserWithEmailAndPassword(emailTextState , passwordTextState).addOnCompleteListener{task ->
-                                            if(task.isComplete){
-                                                userLoggedState.value = "User Logged in"
-                                                navController.navigate(Screen.MainScreen.route)
-                                            }
-                                            else{
-                                                userLoggedState.value = "User Not Logged in"
-                                                navController.navigate(Screen.MainScreen.route)
-                                            }
-                                        }
-                                    }
-                                    catch (e: Exception){
-                                        Toast.makeText(context , e.message , Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-
-                            }
-                        }
-
-                        // endregion implements fireBase authentication
-
-
-
-
+                    signUpViewModel.createUser(context)
 
 
                     },
@@ -195,16 +161,31 @@ fun RegisterScreen(navController: NavHostController) {
                     Text(text = "Register")
                 }
 
-                Text(
-                    text = userLoggedState.value,
-                    style = MaterialTheme.typography.subtitle2
-                )
+                if(isError){
+                    Text(
+                        text = "Check the Fields Carefully",
+                        style = MaterialTheme.typography.subtitle2,
+                        color = Color.Red
+                    )
+                }else{
+                    Text(
+                        text = "Good to go",
+                        style = MaterialTheme.typography.subtitle2
+                    )
+                }
 
 
             }
         }
 
 
+    }
+
+
+    LaunchedEffect(key1 = signUpViewModel.hasUser ){
+        if(signUpViewModel.hasUser){
+            navController.navigate(Screen.MainScreen.route)
+        }
     }
 
 

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,25 +17,29 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            val loginViewModel = viewModel(modelClass = LoginViewModel::class.java)
+
             BL_cloneTheme {
-                BlCloneApp()
+//                DiscussionScreen("hello","world")
+                BlCloneApp(loginViewModel)
             }
         }
     }
 }
 
 @Composable
-fun BlCloneApp() {
+fun BlCloneApp(viewModel: LoginViewModel ) {
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
 
         composable(route = Screen.LoginScreen.route){
-            LoginScreen(navController)
+            LoginScreen(navController,viewModel)
         }
 
         composable(route = Screen.RegisterScreen.route){
-            RegisterScreen(navController)
+            RegisterScreen(navController,viewModel)
         }
 
 
@@ -87,17 +91,11 @@ fun BlCloneApp() {
         composable(route = Screen.AddPostScreen.route) {
             AddPostScreen(navController = navController)
         }
+        composable(route = Screen.UserDetailsUpdateScreen.route){
+            UserDetailsUpdateScreen(navController)
+        }
     }
 
 
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    BL_cloneTheme {
-        BlCloneApp()
-    }
 }
 

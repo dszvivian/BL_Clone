@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
@@ -31,18 +28,48 @@ fun BlMainScreen(navController: NavController, clubs: List<ClubCardModel> = club
         color = Color.Black,
         modifier = Modifier.fillMaxSize()
 
-    ){
+    ) {
 
-        Column(horizontalAlignment = Alignment.Start , modifier = Modifier.padding(5.dp)) {
-            Text(text = "My Clubs", color = Color.White , style = MaterialTheme.typography.h6)
+        Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(5.dp)) {
 
 
-            LazyColumn{
-                items(clubs){club ->
-                    ClubCard(club = club ,navController)
-                }
+            Box(modifier = Modifier.fillMaxWidth())
+             {
+
+
+                    Text(text = "My Clubs",
+                        color = Color.White,
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+
+                    IconButton(
+                        onClick = {
+                                  navController.navigate(Screen.UserDetailsUpdateScreen.route)
+                        },
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
+                        AsyncImage(model = "https://img.icons8.com/ios/2x/user.png",
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(5.dp) ,
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
+                    }
+
+
+
+
             }
 
+
+
+            LazyColumn {
+                items(clubs) { club ->
+                    ClubCard(club = club, navController)
+                }
+            }
 
 
         }
@@ -53,33 +80,34 @@ fun BlMainScreen(navController: NavController, clubs: List<ClubCardModel> = club
 }
 
 @Composable
-fun ClubCard(club : ClubCardModel ,navController: NavController){
+fun ClubCard(club: ClubCardModel, navController: NavController) {
 
     Card(modifier = Modifier
         .fillMaxWidth()
         .height(120.dp)
-        .padding(20.dp)
-        ,
+        .padding(20.dp),
         backgroundColor = Color.Black)
     {
 
         Row {
             Card(
-                shape = CircleShape ,
-                backgroundColor = Color.Black ,
+                shape = CircleShape,
+                backgroundColor = Color.Black,
                 modifier = Modifier
                     .size(60.dp)
                     .align(Alignment.CenterVertically)
             ) {
                 //Image
-                AsyncImage(model = club.icon, contentDescription = "Club profile Icon" , contentScale = ContentScale.Fit)
+                AsyncImage(model = club.icon,
+                    contentDescription = "Club profile Icon",
+                    contentScale = ContentScale.Fit)
 
             }
             Column(modifier = Modifier
                 .padding(16.dp)
-                .fillMaxWidth(0.8f)){
+                .fillMaxWidth(0.8f)) {
                 //Club name : Text
-                Text(text = club.name ,
+                Text(text = club.name,
                     style = MaterialTheme.typography.h6,
                     color = Color.White
                 )
@@ -97,9 +125,8 @@ fun ClubCard(club : ClubCardModel ,navController: NavController){
                     .size(20.dp)
                     .align(Alignment.CenterVertically)
                     .clickable {
-                               navController.navigate(Screen.DiscussionListScreen.route + "/title/description")
-                    }
-                ,
+                        navController.navigate(Screen.DiscussionListScreen.route + "/title/description")
+                    },
                 colorFilter = ColorFilter.tint(Color.White)
             )
 

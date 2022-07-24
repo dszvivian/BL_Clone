@@ -79,8 +79,12 @@ fun MessagingDiscussionCard() {
 
                 TextField(value = textState,
                 onValueChange = {textState = it} ,
-                label = { Text(text = "Message" )},
-                colors = TextFieldDefaults.textFieldColors(Color(1f,1f,1f,1f)),
+                label = { Text(text = "Enter Message...." , modifier = Modifier.align(Alignment.CenterVertically) )},
+                colors = TextFieldDefaults
+                    .textFieldColors(
+                        textColor = Color(1f,1f,1f,1f),
+                        unfocusedLabelColor = Color(1f,1f,1f,1f)
+                    ),
                 modifier = Modifier.fillMaxWidth(0.8f),
             )
 
