@@ -1,5 +1,6 @@
 package com.example.bl_clone.Screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -15,10 +16,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.bl_clone.Models.QuestionsList
+import com.example.bl_clone.Models.QuestionCardModel
+import com.example.bl_clone.Repositories.QUESTION_LIST_REF
 import com.example.bl_clone.Screen
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -26,6 +37,8 @@ fun AddPostScreen(navController: NavController) {
 
     var titleTextState by remember { mutableStateOf("") }
     var descTextState by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
 
     //top bar : textView + Post button
@@ -51,6 +64,7 @@ fun AddPostScreen(navController: NavController) {
                     .wrapContentHeight()
                     .padding(top = 30.dp, bottom = 30.dp, start = 5.dp, end = 5.dp),
                     shape = RoundedCornerShape(4.dp)) {
+                    //title
                     TextField(value = titleTextState,
                         onValueChange = { titleTextState = it },
                         textStyle = MaterialTheme.typography.h6,
@@ -68,6 +82,7 @@ fun AddPostScreen(navController: NavController) {
                     .wrapContentHeight()
                     .padding(top = 30.dp, bottom = 30.dp, start = 5.dp, end = 5.dp),
                     shape = RoundedCornerShape(4.dp)) {
+                    //description
                     TextField(value = descTextState,
                         onValueChange = { descTextState = it },
                         textStyle = MaterialTheme.typography.subtitle1,
@@ -86,6 +101,32 @@ fun AddPostScreen(navController: NavController) {
                 Button(onClick = {
 
                     navController.navigate(Screen.DiscussionListScreen.route + "/${titleTextState}/${descTextState}")
+
+
+                    CoroutineScope(Dispatchers.IO).launch {
+
+
+                        try{
+                            Firebase.firestore.collection(QUESTION_LIST_REF)
+                                    .add(QuestionCardModel(
+                                        title = titleTextState ,
+                                        description = descTextState,
+                                        userName = Firebase.auth.currentUser?.displayName ?: "Jeremiah Dame"
+                                    )).await()
+
+                                withContext(Dispatchers.Main){
+                                    Toast.makeText(context,"Question Uploaded Successfully",Toast.LENGTH_SHORT).show()
+                                }
+                            }catch (e:Exception) {
+                            withContext(Dispatchers.Main){
+                                Toast.makeText(context,"$e",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                    }
+
+
+
 
 
                 }, modifier = Modifier

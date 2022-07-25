@@ -1,14 +1,13 @@
 package com.example.bl_clone.Screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,24 +22,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bl_clone.Models.QuestionCardModel
+import com.example.bl_clone.Repositories.QUESTION_LIST_REF
 import com.example.bl_clone.Screen
 import com.example.bl_clone.rColors
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import io.grpc.okhttp.internal.Platform
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.lang.Exception
 import kotlin.random.Random
+
+
 
 
 @Composable
 fun DiscussionListScreen(navController: NavController, title: String?, desc: String?) {
 
 
-    var questionList by remember {  mutableStateOf(mutableListOf<QuestionCardModel>())  }
+    var questionList by remember {  mutableStateOf(QuestionCardModel())  }
+
+    var questionsTextList by remember {  mutableStateOf("")    }
+    val context = LocalContext.current
 
 
-    questionList.add(QuestionCardModel(title = title , description = desc ))
+
 
 
 
@@ -52,10 +67,44 @@ fun DiscussionListScreen(navController: NavController, title: String?, desc: Str
             )
 
 
-            DiscussionListCard(navController,
-                QuestionCardModel(title = title , description = desc))
+            DiscussionListCard(navController, QuestionCardModel(title = title , description = desc))
 
 
+
+
+
+
+
+            Button(onClick = {
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    try {
+
+                        val querySnapshot  = Firebase.firestore.collection(QUESTION_LIST_REF).get().await()
+                        val sb = StringBuilder()
+                        for (document in querySnapshot.documents){
+                            val person = document.toObject(QuestionCardModel::class.java)
+                            sb.append("\n$person\n")
+                        }
+                        withContext(Dispatchers.Main){
+                            questionsTextList  = sb.toString()
+                        }
+
+                    }catch (e:Exception){
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(context , e.message , Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                }
+
+            }) {
+                Text(text = "Click me To retrieve data")
+            }
+
+
+            Text(text = questionsTextList , modifier = Modifier.background(Color.White), color = Color.Black)
 
 
 
@@ -173,5 +222,6 @@ private fun FabDiscussionList(navController: NavController) {
         Icon(imageVector = Icons.Default.Add, contentDescription = "")
     }
 }
+
 
 
