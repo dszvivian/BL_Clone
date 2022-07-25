@@ -37,8 +37,17 @@ fun AddPostScreen(navController: NavController) {
 
     var titleTextState by remember { mutableStateOf("") }
     var descTextState by remember { mutableStateOf("") }
+    val listOfClubs = listOf("StartUp Club",
+        "BL Hangout",
+        "Hustle Club",
+        "Web3 Club",
+        "Finance Club",
+        "Quiz Club")
+    val currentClubValue = remember { mutableStateOf(listOfClubs[0]) }
 
     val context = LocalContext.current
+
+
 
 
     //top bar : textView + Post button
@@ -56,7 +65,58 @@ fun AddPostScreen(navController: NavController) {
                     Text(text = "Posting to : ",
                         color = Color.White,
                         modifier = Modifier.align(Alignment.CenterVertically))
-                    DropDownMenuCard()
+
+                    // region implement DropDownMenuCard
+                    val expanded = remember { mutableStateOf(false) }
+
+
+                    Surface(modifier = Modifier
+                        .wrapContentSize()
+                        .padding(5.dp), color = Color.Black) {
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp)) {
+
+
+                            Card(shape = RoundedCornerShape(10.dp),
+                                backgroundColor = Color.Black,
+                                border = BorderStroke(1.dp, Color.White)) {
+                                Row(modifier = Modifier
+                                    .padding(3.dp)
+                                    .clickable {
+                                        expanded.value = !expanded.value
+                                    }
+                                )
+                                {
+                                    Text(text = currentClubValue.value, color = Color.White)
+                                    Image(imageVector = Icons.Default.ArrowDropDown, contentDescription = "",
+                                        colorFilter = ColorFilter.tint(Color.White))
+                                    DropdownMenu(expanded = expanded.value,
+                                        onDismissRequest = { expanded.value = false }) {
+
+                                        listOfClubs.forEach {
+
+                                            DropdownMenuItem(onClick = {
+                                                currentClubValue.value = it
+                                                expanded.value = false
+                                            }) {
+
+                                                Text(text = it, color = Color.Black)
+
+                                            }
+
+                                        }
+
+
+                                    }
+                                }
+                            }
+
+
+                        }
+                    }
+
+                    // endregion implements DropDownMenuCard
                 }
 
                 Card(modifier = Modifier
@@ -111,7 +171,8 @@ fun AddPostScreen(navController: NavController) {
                                     .add(QuestionCardModel(
                                         title = titleTextState ,
                                         description = descTextState,
-                                        userName = Firebase.auth.currentUser?.displayName ?: "Jeremiah Dame"
+                                        userName = Firebase.auth.currentUser?.displayName ?: "Jeremiah Dame",
+                                        currentClub = currentClubValue.value
                                     )).await()
 
                                 withContext(Dispatchers.Main){
@@ -146,63 +207,7 @@ fun AddPostScreen(navController: NavController) {
 
 
 @Composable
-fun DropDownMenuCard() {
-
-    val expanded = remember { mutableStateOf(false) }
-    val listOfClubs = listOf("StartUp Club",
-        "BL Hangout",
-        "Hustle Club",
-        "Web3 Club",
-        "Finance Club",
-        "Quiz Club")
-    val currentValue = remember { mutableStateOf(listOfClubs[0]) }
-
-
-    Surface(modifier = Modifier
-        .wrapContentSize()
-        .padding(5.dp), color = Color.Black) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)) {
-
-
-            Card(shape = RoundedCornerShape(10.dp),
-                backgroundColor = Color.Black,
-                border = BorderStroke(1.dp, Color.White)) {
-                Row(modifier = Modifier
-                    .padding(3.dp)
-                    .clickable {
-                        expanded.value = !expanded.value
-                    }
-                )
-                {
-                    Text(text = currentValue.value, color = Color.White)
-                    Image(imageVector = Icons.Default.ArrowDropDown, contentDescription = "",
-                        colorFilter = ColorFilter.tint(Color.White))
-                    DropdownMenu(expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false }) {
-
-                        listOfClubs.forEach {
-
-                            DropdownMenuItem(onClick = {
-                                currentValue.value = it
-                                expanded.value = false
-                            }) {
-
-                                Text(text = it, color = Color.Black)
-
-                            }
-
-                        }
-
-
-                    }
-                }
-            }
-
-
-        }
-    }
+fun DropDownMenuCard(){
 
 
 }

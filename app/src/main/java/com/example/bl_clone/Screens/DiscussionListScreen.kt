@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +34,6 @@ import com.example.bl_clone.Screen
 import com.example.bl_clone.rColors
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import io.grpc.okhttp.internal.Platform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,6 +54,20 @@ fun DiscussionListScreen(navController: NavController, title: String?, desc: Str
     var questionsTextList by remember {  mutableStateOf("")    }
     val context = LocalContext.current
 
+    val scrollColumn = rememberScrollState()
+
+    val sb = remember {
+        StringBuilder()
+    }
+
+    val listOfClubs = listOf("StartUp Club",
+        "BL Hangout",
+        "Hustle Club",
+        "Web3 Club",
+        "Finance Club",
+        "Quiz Club")
+    val currentClubValue = remember { mutableStateOf(listOfClubs[0]) }
+
 
 
 
@@ -70,6 +84,25 @@ fun DiscussionListScreen(navController: NavController, title: String?, desc: Str
             DiscussionListCard(navController, QuestionCardModel(title = title , description = desc))
 
 
+//            Firebase.firestore.collection(QUESTION_LIST_REF)
+//                .whereEqualTo("currentClub",currentClubValue.value)
+//                .addSnapshotListener { querySnapshot, firebasefirestoreException ->
+//                firebasefirestoreException?.let {
+//                    Toast.makeText(context,it.message,Toast.LENGTH_LONG).show()
+//                    return@addSnapshotListener
+//                }
+//
+//                querySnapshot?.let {
+//                    for (document in it){
+//                        val person = document.toObject(QuestionCardModel::class.java)
+//                        sb.append("$person\n\n")
+//                    }
+//
+//                }
+//
+//            }
+
+
 
 
 
@@ -81,8 +114,12 @@ fun DiscussionListScreen(navController: NavController, title: String?, desc: Str
 
                     try {
 
-                        val querySnapshot  = Firebase.firestore.collection(QUESTION_LIST_REF).get().await()
-                        val sb = StringBuilder()
+                        val querySnapshot  = Firebase.firestore.collection(QUESTION_LIST_REF)
+                            .whereEqualTo("currentClub",currentClubValue.value)
+                            .orderBy("currentClub")
+                            .get()
+                            .await()
+//                        val sb = StringBuilder()
                         for (document in querySnapshot.documents){
                             val person = document.toObject(QuestionCardModel::class.java)
                             sb.append("\n$person\n")
@@ -104,7 +141,72 @@ fun DiscussionListScreen(navController: NavController, title: String?, desc: Str
             }
 
 
-            Text(text = questionsTextList , modifier = Modifier.background(Color.White), color = Color.Black)
+            Spacer(modifier = Modifier.padding(10.dp))
+
+
+            // region implement DropDownMenuCard
+            val expanded = remember { mutableStateOf(false) }
+
+
+            Surface(modifier = Modifier
+                .wrapContentSize()
+                .padding(5.dp), color = Color.Black) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)) {
+
+
+                    Card(shape = RoundedCornerShape(10.dp),
+                        backgroundColor = Color.Black,
+                        border = BorderStroke(1.dp, Color.White)) {
+                        Row(modifier = Modifier
+                            .padding(3.dp)
+                            .clickable {
+                                expanded.value = !expanded.value
+                            }
+                        )
+                        {
+                            Text(text = currentClubValue.value, color = Color.White)
+                            Image(imageVector = Icons.Default.ArrowDropDown, contentDescription = "",
+                                colorFilter = ColorFilter.tint(Color.White))
+                            DropdownMenu(expanded = expanded.value,
+                                onDismissRequest = { expanded.value = false }) {
+
+                                listOfClubs.forEach {
+
+                                    DropdownMenuItem(onClick = {
+                                        currentClubValue.value = it
+                                        expanded.value = false
+                                    }) {
+
+                                        Text(text = it, color = Color.Black)
+
+                                    }
+
+                                }
+
+
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
+            // endregion implements DropDownMenuCard
+
+
+            Spacer(modifier = Modifier.padding(10.dp))
+
+
+
+            Column(Modifier
+                .verticalScroll(scrollColumn)
+                .padding(10.dp)) {
+                Text(text = questionsTextList, modifier = Modifier.background(Color.White), color = Color.Black)
+            }
+
 
 
 
